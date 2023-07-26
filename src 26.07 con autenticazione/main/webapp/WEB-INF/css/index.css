@@ -1,0 +1,50 @@
+.headBar{
+    text-align: center;
+    font-size: xx-large;
+    font-family: serif;
+    background-color: red;
+    float: left;
+    width: 100%;
+    height: 20%;
+    margin-top: 5%;
+}
+
+.inputUtente{
+    float: left;
+    width: 60%;
+    margin-left: 20%;
+    background-color: darkslateblue;
+    height: 30%;
+}
+
+.formSigla{
+	float:left;
+	min-width: 50%;
+	margin:20%;
+	margin-top: 5%;
+}
+
+.enumMarchio{
+	float: left;
+	min-width: 100%;
+}
+
+.inputSigla{
+	float:left;
+	min-width: 100%;
+	margin-top: 5%;
+}
+
+
+.creaButton{
+	float:left;
+	min-width: 100%;
+	margin-top: 5%;
+}
+
+.result{
+    float: left;
+    width: 100%;
+    background-color: red;
+    height: 20%;
+}
