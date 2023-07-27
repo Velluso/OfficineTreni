@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name = "bean.Treno" table = "treno">
+        <id name = "idTreno" type = "int" column = "idTreno">
+            <generator class="increment"/>
+        </id>
+        <property name = "stato" column = "stato" type = "string" not-null="true"/>
+        <property name = "sigla" column = "sigla" type = "string" not-null="true"/>
+        <property name = "nome" column = "nome" type = "string" not-null="true"/>
+    </class>
+
+	<query name="vagoniDelTreno">  
+		<![CDATA[from Vagone v where v.idTreno = :id]]>  
+	</query>
+	
+</hibernate-mapping>
