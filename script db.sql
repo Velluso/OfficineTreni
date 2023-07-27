@@ -1,3 +1,8 @@
+CREATE DATABASE dbtreni;
+
+USE dbtreni;
+
+
 CREATE TABLE `utente` (
   `username` varchar(50) NOT NULL,
   `nome` varchar(30) NOT NULL,
