@@ -64,6 +64,14 @@ public class AuthController extends BaseController{
 
     @PostMapping("/public/loginData")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
+    	
+    	
+    	// Validazione dell'username lato server
+        if (!username.matches("[a-zA-Z0-9]+")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "L'username deve contenere solo caratteri alfanumerici.");
+            return "redirect:/public/login";
+        } 
+    	
         String query = "SELECT username, budget, password FROM utente WHERE username=?";
         List<Map<String, Object>> users = jdbcTemplate.queryForList(query, username);
 
@@ -115,6 +123,32 @@ public class AuthController extends BaseController{
             @RequestParam String password, 
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+    	
+    	
+// Controlla se l'username e la password soddisfano i requisiti delle regex
+    	
+    	if (!isValidName(nome) || !isValidName(cognome)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Il nome e il cognome devono contenere solo caratteri alfabetici.");
+            return "redirect:/public/registrazione";
+        }
+    	
+        if (!isValidUsername(username)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "L'username deve contenere solo caratteri alfanumerici.");
+            return "redirect:/public/registrazione";
+        }
+
+        if (!isValidPassword(password)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La password deve essere di almeno 6 caratteri e contenere almeno una lettera, un numero e un carattere speciale.");
+            return "redirect:/public/registrazione";
+        }
+
+        // Controlla se l'email soddisfa i requisiti della regex
+        if (!isValidEmail(email)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Inserisci un indirizzo email valido.");
+            return "redirect:/public/registrazione";
+        }
+    	
+    	
 
         // Crea un nuovo utente e salvalo nel database utilizzando il service
         Utente newUser = new Utente(nome, cognome, 0.0, email, username, password, "USER");
@@ -134,6 +168,39 @@ public class AuthController extends BaseController{
 
         return "redirect:/user/home";
     }
+    
+    
+    
+ // validazione input registrazione lato server DA SPOSTARE
+    
+    private boolean isValidUsername(String username) {
+        // Regex per l'username (caratteri alfanumerici)
+        String regex = "^[a-zA-Z0-9]+$";
+        return username.matches(regex);
+    }
+
+    private boolean isValidPassword(String password) {
+        // Regex per la password (almeno 6 caratteri, una lettera, un numero e un carattere speciale)
+        String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,}$";
+        return password.matches(regex);
+    }
+
+    private boolean isValidEmail(String email) {
+        // Regex per l'email (valido formato email)
+        String regex = "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return email.matches(regex);
+    }
+    
+    
+    private boolean isValidName(String name) {
+        // Regex per il nome e cognome (caratteri alfabetici)
+        String regex = "^[a-zA-Z]+$";
+        return name.matches(regex);
+    }
+    
+    /*    */
+    
+    
     
     
     
