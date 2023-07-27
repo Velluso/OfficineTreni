@@ -1,0 +1,30 @@
+@charset "ISO-8859-1";
+
+
+body {
+
+background-color: #f0f0f0;
+
+}
+
+
+ .mt-5 {
+    margin-top: 10rem!important;
+}
+
+
+.btn-primary {
+    --bs-btn-bg: #f51400eb;
+    --bs-btn-border-color: #000000;
+    
+    }
+    
+  
+
+.btn:hover {
+    
+    background-color: #f51400eb;
+    border-color: #000000;
+    box-shadow: inset 6.5em 0 0 #0d6efd;
+    
+    }

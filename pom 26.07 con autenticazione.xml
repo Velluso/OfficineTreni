@@ -25,6 +25,15 @@
         <artifactId>jstl</artifactId>
         <version>1.2</version> 
     </dependency>
+    <!-- Forse da cambiare con questa 
+    
+    <dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>jstl</artifactId>
+    <version>1.2.2</version>
+</dependency>
+    
+     -->
     <dependency>
     	<groupId>corso.spring.jpa</groupId>
     	<artifactId>CorsoTD</artifactId>
