@@ -1,17 +1,14 @@
 package controller;
 
-
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.sql.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
+import org.json.simple.JSONObject;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -20,11 +17,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import bean.*;
+import bean.Ordine;
+import bean.Treno;
+import bean.Vagone;
 import builder.GenericBuilder;
-import eccezioni.*;
-import service.*;
+import eccezioni.LocomotivaException;
+import eccezioni.PesoTrainatoException;
+import eccezioni.PosizioneRistoranteException;
+import eccezioni.VagoneNonRiconosciutoException;
+import eccezioni.VagoniIncompatibiliException;
+import service.OrdineService;
+import service.TrenoService;
+import service.VagoneService;
 
 @Controller
 public class HomeController extends BaseController{
@@ -36,83 +42,170 @@ public class HomeController extends BaseController{
 		return "home2";	
 	}
 	
-	@RequestMapping(value = "/costruisciTreno", method = RequestMethod.POST)
-	public String user(String siglaTreno, String marchio, Model model) {
+	//CREA TRENO
+	//TODO aggiungere info sulla posizione del vagone
+	@RequestMapping(value = "/creaTreno", method = RequestMethod.GET)
+	public @ResponseBody String buildAJAXRequest(
+	            @RequestParam("siglaTreno") String siglaTreno,  @RequestParam("marchio") String marchio, @RequestParam("nomeTreno") String nomeTreno) {
 		
-		System.out.println("Crea Treno page Request");
-		System.out.println(marchio + " " + siglaTreno);
-		
-		TrenoService ts= (TrenoService) context.getBean("TrenoService");			
-		VagoneService vs= (VagoneService) context.getBean("VagoneService");
-		OrdineService os= (OrdineService) context.getBean("OrdineService");
-		GenericBuilder gb = (GenericBuilder) context.getBean("GenericBuilder");
-		Treno t=(Treno) context.getBean("Treno");
-		
-		/*UtenteService us= (UtenteService) context.getBean("UtenteService");				//creazione di un utente
-		Utente u=new Utente();					
-		u.setCognome("Rossi");
-		u.setNome("Mario");
-		u.setUsername("pluto");
-		us.create(u);*/
-																					//COSTRUZIONE TRENO
-		try {
-			t=gb.costruisciTreno(siglaTreno,marchio,"nomeTreno");
-		} catch (VagoneNonRiconosciutoException | VagoniIncompatibiliException | LocomotivaException
-				| PosizioneRistoranteException | PesoTrainatoException e) {
-			e.printStackTrace();
-		}
-		System.out.println(t+"    "+t.getTreno().toString());
-		
-																	//INSERIMENTO TRENO + VAGONI + ORDINE NEL DB IN TRANSAZIONE
-		Session session = factory.openSession();
-	    Transaction tx = null;	      
-	    try {
-	    	tx = session.beginTransaction();
-	    	ts.crea(t);
-	    	int posizione=1;
-			for(Vagone v:t.getTreno()) {
-				v.setIdTreno(t.getIdTreno());
-				v.setPosizione(posizione);
-				posizione++;
-				vs.create(v);
-			}
-			Ordine o=new Ordine(t.getIdTreno(),"pluto",Date.valueOf(LocalDate.now()),null,null);
-			os.create(o);
-			tx.commit();
-	    } catch (HibernateException e) {
-	    	if (tx!=null) tx.rollback();
-	        e.printStackTrace(); 
-	    } finally {
-	    	session.close(); 
-	    }
-	    model.addAttribute("messaggio",t.getTreno().toString());
-		//model.addAttribute("userName", t.checkOrder(siglaTreno, marchio));			gestione eccezioni .... da vedere
-		return "trenoCostruito";
-	}
-	
-	@GetMapping("/visualizzaTreno")
-	public String visualizzaTreno(@RequestParam String idTreno,Model model) {
-		
-		Treno t=(Treno) context.getBean("Treno");
-		TrenoService ts = (TrenoService) context.getBean("TrenoService");
-		VagoneService vs= (VagoneService) context.getBean("VagoneService");
-		
-		int id=Integer.parseInt(idTreno);
-		t=ts.find(id);
-		List<Vagone> v= ts.cercaVagoniDiUnTreno(idTreno);			//recupera vagoni del treno	(WHERE id==idTreno)		...da fare
-		model.addAttribute("listaTreno",t.getTreno().toString()+v.toString());
-		return "visualizzaTreno"; 
+			ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("springBeansTreno.xml");
+			Treno t=(Treno) context.getBean("Treno");
+			TrenoService ts = (TrenoService) context.getBean("TrenoService");
+			Gson gson = new Gson();
+			
+			try {
+
+					GenericBuilder gb = (GenericBuilder) context.getBean("GenericBuilder");
+					t = gb.costruisciTreno(siglaTreno, marchio);
+					//crea treno
+					t.setSigla(siglaTreno);
+					t.setStato("in costruzione");
+					t.setNome(nomeTreno);
+					ts.crea(t);
+					VagoneService vs= (VagoneService) context.getBean("VagoneService");
+					OrdineService os= new OrdineService();
+					Ordine o = new Ordine();
+					//crea vagoni
 					
+					for(Vagone v : t.getTreno()) {
+						
+						v.setIdTreno(t.getIdTreno());
+						vs.create(v);
+					}
+					
+					//crea ordine
+					o.setIdTreno(t.getIdTreno());
+					o.setStato(t.getStato());
+					o.setUsername("federico.mascali");
+					o.setDataCreazione(new Date());
+					os.create(o);
+					
+					//ultima il treno e l'ordine
+					t.setStato("ultimato");
+					o.setStato(t.getStato());
+					o.setDataConclusione(new Date());
+					ts.update(t);
+					os.update(o);
+			
+			
+			}
+			
+			catch(VagoneNonRiconosciutoException | VagoniIncompatibiliException |LocomotivaException | PosizioneRistoranteException | PesoTrainatoException e){
+				System.out.println(e.getMessage());
+				JSONObject obj=new JSONObject();    
+				obj.put("errore", e.getMessage()); 
+				System.out.print(obj); 
+				return gson.toJson(obj);
+			}
+			
+	        return gson.toJson(t);
+	    }
+	
+	//DATI TRENO DATO ID
+	@RequestMapping(value = "/findTreno", method = RequestMethod.GET)
+	public @ResponseBody String findAJAXRequest( @RequestParam("idTreno") String idTreno) {
+		
+			ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("springBeansTreno.xml");
+			Treno t=(Treno) context.getBean("Treno");
+			TrenoService ts = (TrenoService) context.getBean("TrenoService");
+			int id=Integer.parseInt(idTreno);
+			Gson gson = new Gson();
+			
+			try {
+			
+				System.out.println("Cerco treno con id: " + idTreno);
+				t=ts.find(id);		
+				if(t==null) {
+					throw new Exception("Treno non presente sul database");
+				}
+				
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+				JSONObject obj=new JSONObject();    
+				obj.put("errore", e.getMessage()); 
+				System.out.print(obj); 
+				return gson.toJson(obj);
+			}
+			
+	        return gson.toJson(t);
+	    }
+
+	//DATI VAGONI DATO ID TRENO
+		@RequestMapping(value = "/getViewVagoni", method = RequestMethod.GET)
+		public @ResponseBody String viewVagoniAJAXRequest( @RequestParam("idTreno") String idTreno) {
+			
+				ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("springBeansTreno.xml");
+				List<Vagone> vagoni = new ArrayList<>();
+				TrenoService ts = (TrenoService) context.getBean("TrenoService");
+				int id=Integer.parseInt(idTreno);
+				Gson gson = new Gson();
+				
+				try {
+				
+					System.out.println("Cerco treno con id: " + idTreno);
+					vagoni=ts.cercaVagoniDiUnTreno(idTreno);
+					
+					for(int i=0; i<vagoni.size(); i++) {
+						System.out.println(vagoni.get(i).getCompagnia());
+						System.out.println(vagoni.get(i).getPeso());
+						System.out.println(vagoni.get(i).getId());
+						System.out.println(vagoni.get(i).getIdTreno());
+						System.out.println(vagoni.get(i).getTipoVagone());
+					}
+					
+					if(vagoni.size()<=0) {
+						throw new Exception("Treno non presente sul database");
+					}
+					
+				} catch(Exception e) {
+					System.out.println(e.getMessage());
+					JSONObject obj=new JSONObject();    
+					obj.put("errore", e.getMessage()); 
+					System.out.print(obj); 
+					return gson.toJson(obj);
+				}
+				
+		        return gson.toJson(vagoni);
+		    }
+	
+	//VISTA ORDINI
+	@RequestMapping(value = "/findOrdini", method = RequestMethod.GET)
+	public @ResponseBody String ordiniAJAXRequest( @RequestParam("username") String username) {
+		
+			ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("springBeansOrdine.xml");
+			List<Ordine> o= new ArrayList<Ordine>();
+			OrdineService or = (OrdineService) context.getBean("OrdineService");
+			System.out.println("Cerco ordini di user:  " + username);
+			o=or.find(username);		
+			System.out.println(o.size());
+			Gson gson = new Gson();
+	        return gson.toJson(o);
+	    }
+	
+	/*TODO Collegare al logout*/
+	@GetMapping("/viewLogout")
+	public String viewLogout() {
+		return "logout";
 	}
 	
-	@GetMapping("/cercaTreno")
+	@GetMapping("/viewCostruzione")
+	public String viewCostruzione() {
+		return "creaTreno";
+	}
+	
+	@GetMapping("/viewTreno")
 	public String viewTreno() {
-		return "richiediTreno";
+		return "visualizzaTreno";
 	}
 	
-	@GetMapping("/cercaOrdini")
+	@GetMapping("/viewOrdini")
 	public String viewOrdini() {
 		return "visualizzaOrdini";
+	}
+	
+	@GetMapping("/home")
+	public String viewHome() {
+		return "home";
 	}
 	
 }
