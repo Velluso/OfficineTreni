@@ -8,7 +8,7 @@ public interface OrdineDAO {
     public void update(Ordine bean );
     public void delete(Ordine bean );
 
-    public Ordine find(Integer id);
+    public Ordine find(String username);
 
 
 }
