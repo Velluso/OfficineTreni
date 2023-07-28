@@ -17,5 +17,9 @@
 	<query name="vagoniDelTreno">  
 		<![CDATA[from Vagone v where v.idTreno = :id]]>  
 	</query>
+
+	<query name="ordiniDatoUsername">  
+		<![CDATA[from Ordine o where o.username = :username]]>  
+	</query>
 	  
 </hibernate-mapping>
