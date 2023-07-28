@@ -17,8 +17,8 @@ public class OrdineService {
 		System.out.println("modificato l'ordine con idTreno: " + ordine.getIdTreno() +" e idUtente: "+ ordine.getUsername());
 	} 	
 
-	public Ordine find(int id) {
-		return dao.find(id);
+	public List<Ordine> find(String username) {
+		return dao.find(username);
 	} 
 	
 }
