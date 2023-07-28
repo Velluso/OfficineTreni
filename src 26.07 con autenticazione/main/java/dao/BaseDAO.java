@@ -91,6 +91,24 @@ public abstract class BaseDAO {
 		}
 		return bean;
 	} 
+
+	protected Bean find(Class classe, String username){
+		Session session = factory.openSession();
+		Transaction tx = null;
+		Bean bean = null;
+		      
+		try {
+		  	tx = session.beginTransaction();
+		    bean = (Bean) session.get(classe, username);
+		    tx.commit();
+		} catch (HibernateException e) {
+		    if (tx!=null) tx.rollback();
+		    	e.printStackTrace(); 
+		} finally {
+		    session.close(); 
+		}
+		return bean;
+	} 
 	    
 	   
 }
