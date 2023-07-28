@@ -1,5 +1,7 @@
 package dao;
 
+import java.util.List;
+
 import bean.Ordine;
 
 public interface OrdineDAO {
@@ -8,7 +10,7 @@ public interface OrdineDAO {
     public void update(Ordine bean );
     public void delete(Ordine bean );
 
-    public Ordine find(String username);
+    public List<Ordine> find(String username);
 
 
 }
