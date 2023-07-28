@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+      
+      
+        
+    default-lazy-init="true" 
+    default-init-method="init"
+    default-destroy-method="destroy"
+>
+    
+    <!-- Configurazione dataSource -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+    <!-- Bean del JDBC -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    
+        
+    <context:component-scan base-package="controller"/>
+    <context:annotation-config/>  
+    
+    <bean id="ItaloVagoniFactory" class="factory.ItaloVagoniFactory"></bean>
+    <bean id="FrecciarossaVagoniFactory" class="factory.FrecciarossaVagoniFactory"></bean>
+    <bean id="TreNordVagoniFactory" class="factory.TreNordVagoniFactory"></bean>
+    <bean id="GenericBuilder" class="builder.GenericBuilder"></bean>
+    <bean id="Treno" class="bean.Treno" scope="prototype"></bean>
+    <bean id="TrenoService" class="service.TrenoService"></bean>
+    <bean id="VagoneService" class="service.VagoneService"></bean>
+    <bean id="UtenteService" class="service.UtenteService"></bean>
+    <bean id="OrdineService" class="service.OrdineService"></bean>
+    <bean id="daoTreno" class="dao.TrenoDAOImpl"></bean>
+    <bean id="daoVagone" class="dao.VagoneDAOImpl"></bean>
+    <bean id="daoUtente" class="dao.UtenteDAOImpl"></bean>
+    <bean id="daoOrdine" class="dao.OrdineDAOImpl"></bean>
+
+   	<bean id="ItaloLocomotiva" class="bean.ItaloLocomotiva">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Italo"></constructor-arg>
+        	<constructor-arg name="pesoTrainante" type="int" value="4"></constructor-arg>
+    </bean>
+    <bean id="ItaloPasseggeri" class="bean.ItaloPasseggeri">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="postiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Italo"></constructor-arg>
+    </bean>
+    <bean id="ItaloRistorante" class="bean.ItaloRistorante">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="copertiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Italo"></constructor-arg>
+    </bean>
+    <bean id="ItaloCargo" class="bean.ItaloCargo">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="capienzaPeso" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Italo"></constructor-arg>
+    </bean>	
+    <bean id="FrecciarossaLocomotiva" class="bean.FrecciarossaLocomotiva">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="pesoTrainante" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Frecciarossa"></constructor-arg>
+    </bean>
+    <bean id="FrecciarossaPasseggeri" class="bean.FrecciarossaPasseggeri">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="postiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Frecciarossa"></constructor-arg>
+    </bean>
+    <bean id="FrecciarossaRistorante" class="bean.FrecciarossaRistorante">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="copertiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Frecciarossa"></constructor-arg>
+    </bean>
+    <bean id="FrecciarossaCargo" class="bean.FrecciarossaCargo">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="capienzaPeso" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="Frecciarossa"></constructor-arg>
+    </bean>
+    <bean id="TreNordLocomotiva" class="bean.TreNordLocomotiva">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="pesoTrainante" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="TreNord"></constructor-arg>
+    </bean>
+    <bean id="TreNordPasseggeri" class="bean.TreNordPasseggeri">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="postiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="TreNord"></constructor-arg>
+    </bean>
+    <bean id="TreNordRistorante" class="bean.TreNordRistorante">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="copertiDisponibili" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="TreNord"></constructor-arg>
+    </bean>
+    <bean id="TreNordCargo" class="bean.TreNordCargo">
+        	<constructor-arg name="peso" type="int" value="1"></constructor-arg>
+        	<constructor-arg name="prezzo" type="int" value="2"></constructor-arg>
+        	<constructor-arg name="lunghezza" type="int" value="3"></constructor-arg>
+        	<constructor-arg name="capienzaPeso" type="int" value="4"></constructor-arg>
+        	<constructor-arg name="compagnia" type="String" value="TreNord"></constructor-arg>
+    </bean>
+    
+    <bean class="org.springframework.web.servlet.resource.ResourceHttpRequestHandler" />
+    
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    	<property name="location" value="classpath:config/database.properties" />
+	</bean>
+	
+    
+    
+
+</beans>
