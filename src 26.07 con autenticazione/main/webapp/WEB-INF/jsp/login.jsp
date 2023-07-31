@@ -4,9 +4,10 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Login Page</title>
+<title>Pagina Login</title>
+<!-- Add the Bootstrap CSS link here -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/login.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/login.css">
 </head>
 
 
@@ -35,6 +36,17 @@
               <button type="submit" class="btn btn-primary" style="margin-top: 10px">Login</button>
             </form>
             <p class="mt-3">Non hai ancora un account? <a href="../public/registrazione">Registrati</a></p>
+            <p class="mt-3">Torna alla <a href="../public/home">Home</a></p>
+            <c:if test="${not empty errorMessage}">
+              <p class="mt-3" style="color: red;">${errorMessage}</p>
+              
+            </c:if>
+            
+            <c:if test="${not empty messaggioLogout}">
+        <p style="color: green;"><b>${messaggioLogout}</b></p>
+        
+    		</c:if>
+            
           </div>
         </div>
       </div>
