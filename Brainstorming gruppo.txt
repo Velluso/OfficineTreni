@@ -1,0 +1,95 @@
+DATABASE
+	+ quali tabelle?
+		SI	treno,
+		SI	vagone (con gerarchia? NO),
+		NO	composizioneTreno (evitabile vista la relazione uno a molti tra treno e vagone),
+		SI	utente, 
+		SI	Authorities (serve per Spring Security),
+		NO	creazioneVagone (non ci teniamo a tenere traccia di chi ha creato un vagone. Anche se fosse, si tratta di una relazione uno a molti per cui non serve la tabella intermedia)
+		SI	ordine (con info sullo stato di avanzamento treno) (non è proprio necessaria vista la relazione uno a molti tra treno e utente)
+	
+	+ utente/amministratore come gestirlo? con la tabella Authorities e Spring Security (alcuni controlli di sicurezza, mappare pagine di login, registrazione, logout, reindirizzamento post login/logout)
+	
+	+ relazioni/collegamenti tra le tabelle? composizioneTreno (NO), creazioneVagone (NO), ordineTreno (SI)
+	
+	+ quando viene creato un treno???
+		QUANDO VIENE LANCIATO L'ALGORITMO DI COSTRUZIONE DEL TRENO	 
+	
+	+ quando viene creato un vagone??? 
+		L'UTENTE NON CREA VAGONI!!! I vagoni vengono creati dall'applicazione durante la costruzione del treno 
+		L'UTENTE NON MODIFICA VAGONI, E NON NE CREA DI PERSONALIZZATI (magari in futuro un utente admin potrà farlo)
+			+ a questo punto serve ancora la tabella vagone??? SI, ogni treno creato dall'utente crea istanze di tabella Vagone CON I SUOI VAGONI
+			+ a questo punto serve ancora la tabella "composizioneTreno"? potremmo evitarla aggiungendo alla tabella "vagone" attributi "idTreno" e "posizione". FACCIAMO IN QUESTO MODO
+	
+	+ la tabella authorities serve proprio? (perchè altrimenti la accorpiamo a utente) NO, la tabella SERVE.
+
+	+ questione tabelle utente autenticazione: la tabella di marco e quella che ho fatto io possono coincidere?	SI, ci pensa marco
+	
+	+ realizzare vista che recupera peso, prezzo, lunghezza, stato, sigla (ricavata, non memorizzata) del treno
+
+FUNZIONALITA' amministratore/utente
+	admin:
+		+ può creare vagoni personalizzati ---> FUNZ. NON IMPLEMENTATA PER ORA
+		+ può visionare lo storico delle operazioni di creazione dei treni di TUTTI ---
+			---> occorre quindi memorizzare quando i treni vengono creati (in ordineTreno prevedere i campi dataCreazione e dataConclusione)
+			
+			utente può CREARE ordini, visionare i suori ordini, admin può VISIONARE tabella ordini di TUTTI
+	utente:
+		+ può utilizzare solo vagoni standard
+
+SCELTE DI IMPLEMENTAZIONE:
+	+ Spring: xml/annotation/classiJava?	xml con qualche annotation
+	+ Maven: utilizziamo?			SI
+	+ ORM: HBN o JPA?			HBN
+	+ servlet o controller?			controller
+
+DIVISIONE DEL LAVORO 
+	+ modello UML+codice+Spring, quale progetto utilizzare?	EUGENIO
+	+ classi DAO	
+		+ 1 DAO per ogni tabella?	SI 
+			+ DAO utente		MARCO
+			+ DAO ordine		FEDERICO (manca solo xml hbn config)
+			+ DAO treno		FEDERICO
+			+ DAO vagone		EUGENIO
+	+ modello ER	FEDERICO
+		+ eliminare idTreno da Vagone??? SI
+		+ eliminare idOrdine da Ordine??? SI (per ora, se non da problemi)
+		+ eliminare campo admin da Authorities??? SI
+		+ aggiungere campo sigla + campo nome alla tabella treno nel diagramma ER
+		+ utilità tabella ordini? LA TENIAMO e tabella composizione? LA ELIMINIAMO
+
+	+ script sql creazione db	EUGENIO
+	+ gestire autenticazione con Spring security	MARCO
+		
+COSE DA FARE:
+	- portare in un file tutte le configurazioni con sistemi esterni (tecnica del lookup)		MARCO
+	+ 1a parte: costruzione treno tramite siglia (da pagina web)					EUGE
+		risolvere piccolo problema aggiunta vagoni (Frecciarossa!=Freccia Rossa) (bean Treno, aggiunto scope="prototype")
+	+ 2a parte: utente chiede di visualizzare un treno fornendo l'idTreno (oppure il nomeTreno) (da pagina web)
+		gestisci prelievo del db dei vagoni che compongono il treno (utilizza una query HQL)				EUGE
+	+ 3a parte: realizzare pagina web in cui l'utente fornisce info per costruzione treno (compagnia + sigla + nomeTreno)
+		inserimento diretto siglia o tramite un'interfaccia più user friendly? 		TRAMITE SIGLA
+	- 4a parte: gestione comunicazione eccezioni di creazione treno all'utente nella pagina web di costruzione del treno	EUGENIO
+		1. stampa a video errore
+		2. non si costruisce/crea niente
+		3. possibilità di ritornare alla schermata di creazione treno
+	- 5a parte: curare l'estetica delle pagine web create (con Bootstrap)				FEDERICO + MARCO (le pagine di registrazione/login)
+	+ dichiarare variabile context con un LAZY singleton per farne una istanza unica per tutto il programma			EUGENIO
+	+ funzionalità di registrazione e login								MARCO
+
+FUNZIONALITA' AGGIUNTIVE:
+	+ AJAX per visualizzare risultato costruzione treno (realizzato con successo oppure stampa eccezioni)
+	- utente chiede di visualizzare un treno fornendo IL NOME TRENO invece che l'idTreno
+	- 
+
+PROBLEMI:
+	- pagina di login, caso username non trovato, stampare errore in qualche modo		MARCO
+	- pulsante ritorno alla home pagina visualizzaTreno diverso dalle altre 2 pagine	EUGE
+	- manca stampa vagoni del treno nella pagina "visualizzaTreno" (o in un'altra pagina)	FEDE
+	- budget non implementato, lo togliamo?
+	- messaggio "logout eseguito con successo"						MARCO
+
+DIVISIONE PRESENTAZIONE	(5 minuti a testa)
+	- database (JDBC, tabella Authorities) + Autenticazione ed autorizzazione (pattern MVC) + Bootstrap (e un po' di CSS) 	MARCO
+	- database (diagramma ER, script creazione) + classe HomeController + AJAX 						FEDE
+	- modello (del pattern Mvc) e design pattern utilizzati (dao, mvc, builder, abstractFactory, singleton) 		EUGE
