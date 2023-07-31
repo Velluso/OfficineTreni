@@ -1,4 +1,4 @@
-package OfficineTreniAuth.controller;
+package controller;
 
 import java.util.Map;
 import javax.servlet.ServletException;
